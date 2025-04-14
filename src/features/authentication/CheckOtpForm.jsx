@@ -15,16 +15,21 @@ function CheckOtpForm({ phoneNumber, onBack, onResendOtp, otpResponse }) {
   const navigate = useNavigate();
   const { isPending, mutateAsync } = useMutation({
     mutationFn: checkOtp,
+
+    // این استیت رو میگفتم
+    onSuccess: (data) => {
+      toast.success(data.message);
+      navigate("/complete-profile");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
   const checkOtpHandler = async (e) => {
     e.preventDefault();
     try {
-      const { user, message } = await mutateAsync({ phoneNumber, otp });
+      const { message } = await mutateAsync({ phoneNumber, otp });
       toast.success(message);
-      if (user.isActive) {
-      } else {
-        navigate("/complete-profile");
-      }
     } catch (error) {
       toast.error(error?.response?.data?.message);
     }
@@ -35,7 +40,6 @@ function CheckOtpForm({ phoneNumber, onBack, onResendOtp, otpResponse }) {
       if (timer) clearInterval(timer);
     };
   }, [time]);
-  console.log(otpResponse);
 
   return (
     <div>
@@ -44,7 +48,7 @@ function CheckOtpForm({ phoneNumber, onBack, onResendOtp, otpResponse }) {
       </button>
       {otpResponse && (
         <p className="flex justify-center gap-x-2 my-4">
-          <span> {otpResponse}</span>
+          <span> {otpResponse.message}</span>
           <button onClick={onBack}>
             <CiEdit className="w-6 h-6 text-primary-600" />{" "}
           </button>
